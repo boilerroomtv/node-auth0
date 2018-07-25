@@ -123,7 +123,8 @@ OAuthAuthenticator.prototype.signIn = function(userData, cb) {
  *   username: '{USERNAME}',
  *   password: '{PASSWORD}'
  *   realm: '{CONNECTION_NAME}', // Optional field.
- *   scope: 'openid'  // Optional field.
+ *   scope: 'openid',  // Optional field.
+ *   user_ip: '{USER_IP}' // Optional field.
  * };
  *
  * auth0.oauth.passwordGrant(data, function (err, userData) {
@@ -166,6 +167,12 @@ OAuthAuthenticator.prototype.passwordGrant = function(userData, cb) {
 
   if (typeof data.realm === 'string' && data.realm.split().length !== 0) {
     data.grant_type = 'http://auth0.com/oauth/grant-type/password-realm';
+  }
+
+  if (userData.user_ip) {
+    params._requestCustomizer = function(req) {
+      req.set('auth0-forwarded-for', userData.user_ip);
+    };
   }
 
   if (cb && cb instanceof Function) {
